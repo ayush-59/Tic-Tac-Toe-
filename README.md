@@ -1,4 +1,4 @@
 # Tic-Tac-Toe-
-# A classic Tic Tac Toe Game with GUI
-# You can play with computer
+classic Tic Tac Toe Game with GUI
+You can play with computer
 
