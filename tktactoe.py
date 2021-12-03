@@ -25,6 +25,10 @@ def isWinner(x):
     board[1]==x and board[5]==x and board[9]==x or
     board[3]==x and board[5]==x and board[7]==x )
 
+def is_draw():
+    possibleMoves=[x for x,letter in enumerate(board) if letter == " " and x!=0]
+    return len(possibleMoves) == 0
+
 def restart():
     python=sys.executable
     os.execl(python,python,*sys.argv)
@@ -41,42 +45,56 @@ def playerMove(n):
     b[n].config(text=board[n])
     if isWinner('X'):
         message("YOU WIN!")
+        return
     if board.count(" ")==1:
         message("GAME DRAW!")
+        return
     move=compMove()
     board[move]="O"
     b[move].config(text=board[move])
     if isWinner('O'):
         message("YOU LOSE!")
 
+def minimax(is_max):
+    if isWinner('X'):
+        return -100
+    elif isWinner('O'):
+        return 100
+    elif is_draw():
+        return 0
+
+    possibleMoves = [x for x,letter in enumerate(board) if letter == " " and x != 0]
+
+    if is_max:
+        best = -1000
+        for move in possibleMoves:
+            board[move] = 'O'
+            best = max(best, minimax(not is_max))
+            board[move] = " "
+
+        return best
+    else:
+        best = 1000
+        for move in possibleMoves:
+            board[move] = 'X'
+            best = min(best, minimax(not is_max))
+            board[move] = " "
+
+        return best
+
 def compMove():
-    possibleMoves=[x for x in range(1,10) if board[x]==" "]
-    for x in ['O','X']:
-        for let in possibleMoves:
-            board[let]=x
-            if isWinner(x):
-                return let
-            board[let]=" "
+    possibleMoves = [x for x, letter in enumerate(board) if letter == " " and x != 0]
+    best = -1000
+    best_move = None
+    for move in possibleMoves:
+        board[move] = 'O'
+        score =  minimax(False)
+        board[move] = ' '
+        if score > best:
+            best = score
+            best_move = move
+    return best_move
 
-    choices=[]
-    corners=[1,3,7,9]
-    for x in corners:
-        if x in possibleMoves:
-            choices.append(x)
-    if len(choices)>0:
-        x=random.choice(choices)
-        return x
-
-    if 5 in possibleMoves:
-        return 5
-
-    edges=[2,4,6,8]
-    for x in edges:
-        if x in possibleMoves:
-            choices.append(x)
-    if len(choices)>0:
-        x=random.choice(choices)
-        return x
 
 b1=Button(c,height=10,width=20,text=board[1],bg="silver",command=lambda:playerMove(1))
 b1.grid(row=1,column=1)
